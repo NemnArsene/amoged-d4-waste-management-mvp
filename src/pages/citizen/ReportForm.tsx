@@ -5,6 +5,7 @@ import { LatLng } from 'leaflet';
 import { Button } from '../../components/ui/Button';
 import { Input, Select, Textarea } from '../../components/ui/Input';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useAppStore } from '../../store/useAppStore';
 import { CATEGORY_LABELS, ZONES_DATA } from '../../data/mockData';
 import type { WasteCategory, UrgencyLevel, CollectionZone } from '../../types';
 import { Camera, MapPin, AlertTriangle, ChevronLeft, Send, X, Navigation } from 'lucide-react';
@@ -23,6 +24,7 @@ const STEPS = ['Photo', 'Localisation', 'Détails', 'Confirmation'];
 export function ReportForm() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { addNotification } = useAppStore();
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -73,6 +75,15 @@ export function ReportForm() {
     setIsSubmitting(true);
     await new Promise(r => setTimeout(r, 1500));
     setIsSubmitting(false);
+    
+    addNotification({
+      userId: 'admin-1',
+      type: 'REPORT_CREATED',
+      title: 'Nouveau Signalement',
+      message: `${user?.fullName} a soumis un nouveau signalement : ${form.title}`,
+      priority: form.urgency === 'CRITICAL' ? 'URGENT' : 'NORMAL',
+    });
+
     toast.success('🎉 Signalement envoyé avec succès! Référence: RPT-2025-00501');
     navigate('/citizen/my-reports');
   };

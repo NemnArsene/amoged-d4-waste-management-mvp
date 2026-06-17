@@ -32,6 +32,9 @@ export type NotificationType =
   | 'REPORT_REJECTED'
   | 'INTERVENTION_ASSIGNED'
   | 'INTERVENTION_COMPLETED'
+  | 'REWARD_REQUESTED'
+  | 'REWARD_VALIDATED'
+  | 'REWARD_REJECTED'
   | 'SYSTEM'
   | 'ALERT'
   | 'INFO';
@@ -364,4 +367,31 @@ export interface TimeSeriesPoint {
   reports: number;
   interventions?: number;
   resolved?: number;
+}
+
+// ─── REWARDS ──────────────────────────────────────────────────────────────────
+
+export type RewardStatus = 'PENDING' | 'VALIDATED' | 'REJECTED';
+
+export interface RewardItem {
+  id: string;
+  title: string;
+  description: string;
+  pointsCost: number;
+  icon: string;
+  category: 'BON' | 'GOODIES' | 'SERVICE' | 'TECH' | 'INTERNET';
+  isAvailable: boolean;
+}
+
+export interface RewardRequest {
+  id: string;
+  citizenId: string;
+  citizenName: string;
+  rewardId: string;
+  rewardTitle: string;
+  pointsCost: number;
+  status: RewardStatus;
+  createdAt: string;
+  validatedAt?: string;
+  validatedBy?: string;
 }

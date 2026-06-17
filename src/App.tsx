@@ -24,6 +24,7 @@ import { ReportingPage } from './pages/admin/ReportingPage';
 import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
 import { AuditPage } from './pages/admin/AuditPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminRewardsPage } from './pages/admin/AdminRewardsPage';
 
 // Citizen Layout & Pages
 import { CitizenLayout } from './components/layout/CitizenLayout';
@@ -33,6 +34,7 @@ import { MyReportsPage } from './pages/citizen/MyReportsPage';
 import { CalendarPage } from './pages/citizen/CalendarPage';
 import { MorePage } from './pages/citizen/MorePage';
 import { NotificationsPage } from './pages/citizen/NotificationsPage';
+import { RewardsPage } from './pages/citizen/RewardsPage';
 
 // Types
 import type { UserRole } from './types';
@@ -150,6 +152,7 @@ export default function App() {
           <Route path="map" element={<MapPage />} />
           <Route path="interventions" element={<InterventionsPage />} />
           <Route path="agents" element={<AgentsPage />} />
+          <Route path="rewards" element={<AdminRewardsPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="reporting" element={<ReportingPage />} />
           <Route path="notifications" element={<AdminNotificationsPage />} />
@@ -172,6 +175,7 @@ export default function App() {
           <Route path="my-reports" element={<MyReportsPage />} />
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="more" element={<MorePage />} />
+          <Route path="rewards" element={<RewardsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="profile" element={<MorePage />} />
         </Route>

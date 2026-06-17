@@ -6,6 +6,7 @@ import { Badge, StatusBadge, UrgencyBadge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
 import { Modal } from '../../components/ui/Modal';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { useAppStore } from '../../store/useAppStore';
 import {
   MOCK_REPORTS, MOCK_AGENTS, CATEGORY_LABELS, ZONES_DATA, STATUS_LABELS
 } from '../../data/mockData';
@@ -41,6 +42,7 @@ const CATEGORY_OPTIONS = [
 const PAGE_SIZE = 15;
 
 export function ReportsPage() {
+  const { addNotification } = useAppStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [zoneFilter, setZoneFilter] = useState('');
@@ -81,6 +83,27 @@ export function ReportsPage() {
 
   const handleStatusChange = (reportId: string, status: ReportStatus) => {
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
+
+    if (status === 'RESOLVED' && selectedReport) {
+      addNotification({
+        userId: selectedReport.citizenId,
+        type: 'REPORT_RESOLVED',
+        title: 'Signalement Traité ! ✅',
+        message: `Votre signalement "${selectedReport.title}" a été résolu. Merci de votre contribution !`,
+        priority: 'NORMAL',
+        isRead: false
+      });
+    } else if (status === 'REJECTED' && selectedReport) {
+      addNotification({
+        userId: selectedReport.citizenId,
+        type: 'REPORT_REJECTED',
+        title: 'Signalement Rejeté',
+        message: `Votre signalement "${selectedReport.title}" a été rejeté.`,
+        priority: 'NORMAL',
+        isRead: false
+      });
+    }
+
     toast.success('Statut mis à jour');
   };
 
@@ -334,7 +357,7 @@ export function ReportsPage() {
                 <p className="text-xs text-gray-500 mb-2">Photos ({selectedReport.photos.length})</p>
                 <div className="grid grid-cols-3 gap-2">
                   {selectedReport.photos.map((photo, i) => (
-                    <img key={i} src={photo} alt={`Photo ${i+1}`} className="w-full h-24 object-cover rounded-xl" />
+                    <img key={i} src={photo} alt={`Photo ${i + 1}`} className="w-full h-24 object-cover rounded-xl" />
                   ))}
                 </div>
               </div>

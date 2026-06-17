@@ -167,6 +167,12 @@ export function MorePage() {
             subtitle={`Rang actuel: ${user.stats?.rank || 'Nouveau Citoyen'}`}
           />
           <MenuItem
+            icon={<Star className="w-4 h-4 text-purple-500" />}
+            label="Mes Récompenses"
+            subtitle="Programme de fidélité"
+            onClick={() => navigate('/citizen/rewards')}
+          />
+          <MenuItem
             icon={<Trash2 className="w-4 h-4" />}
             label="Guide de Tri des Déchets"
             subtitle="Bien séparer vos déchets"

@@ -85,7 +85,11 @@ export function CitizenHome() {
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalReports}</p>
           </Card>
-          <Card padding="sm" className="border-l-4 border-l-purple-500">
+          <Card 
+            padding="sm" 
+            className="border-l-4 border-l-purple-500 cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+            onClick={() => navigate('/citizen/rewards')}
+          >
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="w-4 h-4 text-purple-500" />
               <span className="text-xs text-gray-500">Points</span>

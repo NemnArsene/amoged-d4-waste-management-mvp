@@ -6,7 +6,7 @@ import { Avatar } from '../ui/Avatar';
 import {
   LayoutDashboard, AlertTriangle, Map, ClipboardList, Users,
   UserCog, BarChart3, Bell, Settings, FileText, ChevronLeft,
-  ChevronRight, LogOut, Moon, Sun, Trash2
+  ChevronRight, LogOut, Moon, Sun, Trash2, Gift
 } from 'lucide-react';
 
 interface NavItem {
@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/admin/map', label: 'Carte Interactive', icon: <Map className="w-5 h-5" /> },
   { path: '/admin/interventions', label: 'Interventions', icon: <ClipboardList className="w-5 h-5" /> },
   { path: '/admin/agents', label: 'Agents', icon: <Users className="w-5 h-5" /> },
+  { path: '/admin/rewards', label: 'Programme de fidélité', icon: <Gift className="w-5 h-5" /> },
   { path: '/admin/users', label: 'Utilisateurs', icon: <UserCog className="w-5 h-5" /> },
   { path: '/admin/reporting', label: 'Reporting', icon: <BarChart3 className="w-5 h-5" /> },
   { path: '/admin/notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
