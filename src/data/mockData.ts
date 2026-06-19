@@ -54,8 +54,8 @@ function randomDate(start: Date, end: Date): string {
 function randomGPS(zone: CollectionZone): { lat: number; lng: number } {
   const center = ZONES_DATA[zone].center;
   return {
-    lat: center[0] + (Math.random() - 0.5) * 0.015,
-    lng: center[1] + (Math.random() - 0.5) * 0.015,
+    lat: center[0] + (Math.random() - 0.5) * 0.006,
+    lng: center[1] + (Math.random() - 0.5) * 0.006,
   };
 }
 
