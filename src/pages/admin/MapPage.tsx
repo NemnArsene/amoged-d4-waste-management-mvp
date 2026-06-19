@@ -125,6 +125,8 @@ export function MapPage() {
               zoom={13}
               style={{ height: '100%', width: '100%' }}
               zoomControl={false}
+              scrollWheelZoom={true}
+              doubleClickZoom={true}
               className={theme === 'dark' ? 'leaflet-dark' : ''}
             >
               <TileLayer

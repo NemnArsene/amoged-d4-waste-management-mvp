@@ -231,7 +231,7 @@ export function ReportForm() {
             </Button>
 
             <div className="h-64 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-              <MapContainer center={[4.0522, 9.6817]} zoom={13} style={{ height: '100%', width: '100%' }}>
+              <MapContainer center={[4.0522, 9.6817]} zoom={13} scrollWheelZoom={true} doubleClickZoom={true} style={{ height: '100%', width: '100%' }}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <LocationPicker onLocation={handleMapClick} />
                 {markerPos && <Marker position={markerPos} />}
