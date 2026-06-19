@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { Input, Select, Textarea } from '../../components/ui/Input';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
+import { useReportStore } from '../../store/useReportStore';
 import { CATEGORY_LABELS, ZONES_DATA } from '../../data/mockData';
 import type { WasteCategory, UrgencyLevel, CollectionZone } from '../../types';
 import { Camera, MapPin, AlertTriangle, ChevronLeft, Send, X, Navigation } from 'lucide-react';
@@ -25,6 +26,7 @@ export function ReportForm() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { addNotification } = useAppStore();
+  const { addReport } = useReportStore();
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -73,18 +75,39 @@ export function ReportForm() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    // Simulate network delay
     await new Promise(r => setTimeout(r, 1500));
     setIsSubmitting(false);
-    
-    addNotification({
-      userId: 'admin-1',
-      type: 'REPORT_CREATED',
-      title: 'Nouveau Signalement',
-      message: `${user?.fullName} a soumis un nouveau signalement : ${form.title}`,
-      priority: form.urgency === 'CRITICAL' ? 'URGENT' : 'NORMAL',
+
+    if (!user || !location || !form.category) return;
+
+    const referenceNumber = addReport({
+      title: form.title,
+      description: form.description,
+      category: form.category as WasteCategory,
+      urgency: form.urgency,
+      photos: photos,
+      location: {
+        lat: location.lat,
+        lng: location.lng,
+        address: form.address,
+        zone: user.zone,
+      },
+      citizenId: user.id,
+      citizenName: user.fullName,
+      citizenPhone: user.phone || 'Non renseigné',
     });
 
-    toast.success('🎉 Signalement envoyé avec succès! Référence: RPT-2025-00501');
+    addNotification({
+      userId: 'admin-001',
+      type: 'REPORT_CREATED',
+      title: 'Nouveau Signalement',
+      message: `${user.fullName} a soumis un nouveau signalement : ${form.title}`,
+      priority: form.urgency === 'CRITICAL' ? 'URGENT' : 'NORMAL',
+      isRead: false
+    });
+
+    toast.success(`🎉 Signalement envoyé avec succès! Référence: ${referenceNumber}`);
     navigate('/citizen/my-reports');
   };
 
@@ -131,7 +154,7 @@ export function ReportForm() {
               className={cn(
                 'flex-1 h-1.5 rounded-full transition-all',
                 i < step ? 'bg-emerald-500' :
-                i === step ? 'bg-emerald-300' : 'bg-gray-200 dark:bg-gray-700'
+                  i === step ? 'bg-emerald-300' : 'bg-gray-200 dark:bg-gray-700'
               )}
             />
           ))}
@@ -153,7 +176,7 @@ export function ReportForm() {
             <div className="grid grid-cols-3 gap-3">
               {photos.map((photo, i) => (
                 <div key={i} className="relative aspect-square rounded-2xl overflow-hidden">
-                  <img src={photo} alt={`Photo ${i+1}`} className="w-full h-full object-cover" />
+                  <img src={photo} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                   <button
                     onClick={() => setPhotos(prev => prev.filter((_, j) => j !== i))}
                     className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs"

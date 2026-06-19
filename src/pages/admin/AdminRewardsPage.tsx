@@ -25,6 +25,7 @@ export function AdminRewardsPage() {
       title: 'Récompense Validée ! 🎉',
       message: `Votre demande pour "${rewardTitle}" a été approuvée. Présentez-vous à la Mairie pour la retirer.`,
       priority: 'HIGH',
+      isRead: false
     });
     toast.success('Demande validée avec succès');
   };
@@ -37,6 +38,7 @@ export function AdminRewardsPage() {
       title: 'Demande Refusée',
       message: `Votre demande pour "${rewardTitle}" n'a pas pu être validée.`,
       priority: 'NORMAL',
+      isRead: false
     });
     toast.error('Demande refusée');
   };
@@ -50,10 +52,10 @@ export function AdminRewardsPage() {
 
       <div className="flex gap-2 mb-6">
         {['ALL', 'PENDING', 'VALIDATED', 'REJECTED'].map(f => (
-          <Button 
-            key={f} 
-            variant={filter === f ? 'primary' : 'outline'} 
-            size="sm" 
+          <Button
+            key={f}
+            variant={filter === f ? 'primary' : 'outline'}
+            size="sm"
             onClick={() => setFilter(f as any)}
           >
             {f === 'ALL' ? 'Toutes' : f === 'PENDING' ? 'En Attente' : f === 'VALIDATED' ? 'Validées' : 'Refusées'}
@@ -121,16 +123,16 @@ export function AdminRewardsPage() {
                       <td className="px-4 py-3">
                         {req.status === 'PENDING' && (
                           <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="primary" 
+                            <Button
+                              size="sm"
+                              variant="primary"
                               className="bg-emerald-600 hover:bg-emerald-700 border-none"
                               onClick={() => handleValidate(req.id, req.citizenId, req.rewardTitle)}
                             >
                               Valider
                             </Button>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="danger"
                               onClick={() => handleReject(req.id, req.citizenId, req.rewardTitle)}
                             >

@@ -48,6 +48,7 @@ export function LoginPage() {
     }
   };
 
+  /*
   const handleDemoLogin = (role: typeof DEMO_ACCOUNTS[0]['role']) => {
     loginDemo(role);
     toast.success('Connexion démo réussie!');
@@ -57,6 +58,7 @@ export function LoginPage() {
       navigate('/citizen/home');
     }
   };
+  */
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex flex-col items-center justify-center p-4 md:p-8">
@@ -131,14 +133,15 @@ export function LoginPage() {
             </Button>
           </div>
 
-          {/* Divider */}
+          {/* Divider 
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-gray-800" />
             <span className="text-xs text-gray-500 font-medium">DÉMO RAPIDE</span>
             <div className="flex-1 h-px bg-gray-800" />
           </div>
+          */}
 
-          {/* Demo accounts */}
+          {/* Demo accounts 
           <div className="grid grid-cols-2 gap-2.5">
             {DEMO_ACCOUNTS.map(acc => (
               <button
@@ -159,6 +162,7 @@ export function LoginPage() {
               </button>
             ))}
           </div>
+          */}
 
           <p className="text-center text-xs text-gray-500 mt-6">
             Pas encore de compte?{' '}
@@ -169,7 +173,7 @@ export function LoginPage() {
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          Mairie de Douala 4ème © 2025 — AMOGED-D4 v1.0.0
+          Mairie de Douala 4ème © 2026 — AMOGED-D4 v1.0.0
         </p>
       </div>
     </div>

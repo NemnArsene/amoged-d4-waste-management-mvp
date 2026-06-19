@@ -14,14 +14,14 @@ import type {
 // ─── ZONES DOUALA 4ÈME ────────────────────────────────────────────────────────
 
 export const ZONES_DATA: Record<CollectionZone, { name: string; center: [number, number]; color: string }> = {
-  BONABERI:    { name: 'Bonabéri',    center: [4.0522, 9.6817], color: '#059669' },
-  BOJONGO:     { name: 'Bojongo',     center: [4.0680, 9.6723], color: '#3b82f6' },
-  MABANDA:     { name: 'Mabanda',     center: [4.0445, 9.6940], color: '#f59e0b' },
-  SODIKO:      { name: 'Sodiko',      center: [4.0590, 9.6655], color: '#8b5cf6' },
-  NKOMBA:      { name: 'Nkomba',      center: [4.0350, 9.6780], color: '#ec4899' },
-  GRAND_HANGAR:{ name: 'Grand Hangar',center: [4.0620, 9.6880], color: '#14b8a6' },
-  BONASSAMA:   { name: 'Bonassama',   center: [4.0480, 9.7010], color: '#f97316' },
-  MAMBANDA:    { name: 'Mambanda',    center: [4.0720, 9.6760], color: '#ef4444' },
+  BONABERI: { name: 'Bonabéri', center: [4.0522, 9.6817], color: '#059669' },
+  BOJONGO: { name: 'Bojongo', center: [4.0680, 9.6723], color: '#3b82f6' },
+  MABANDA: { name: 'Mabanda', center: [4.0445, 9.6940], color: '#f59e0b' },
+  SODIKO: { name: 'Sodiko', center: [4.0590, 9.6655], color: '#8b5cf6' },
+  NKOMBA: { name: 'Nkomba', center: [4.0350, 9.6780], color: '#ec4899' },
+  GRAND_HANGAR: { name: 'Grand Hangar', center: [4.0620, 9.6880], color: '#14b8a6' },
+  BONASSAMA: { name: 'Bonassama', center: [4.0480, 9.7010], color: '#f97316' },
+  MAMBANDA: { name: 'Mambanda', center: [4.0720, 9.6760], color: '#ef4444' },
 };
 
 // ─── PHOTOS MOCK (URLs Unsplash/placeholder) ──────────────────────────────────
@@ -60,7 +60,7 @@ function randomGPS(zone: CollectionZone): { lat: number; lng: number } {
 }
 
 function generateRef(prefix: string, num: number): string {
-  return `${prefix}-2025-${String(num).padStart(5, '0')}`;
+  return `${prefix}-2026-${String(num).padStart(5, '0')}`;
 }
 
 // ─── FIRST NAMES & LAST NAMES (Camerounais) ───────────────────────────────────
@@ -111,8 +111,8 @@ export const MOCK_ADMIN: User = {
   isActive: true,
   isEmailVerified: true,
   isPhoneVerified: true,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2025-01-01T00:00:00Z',
+  createdAt: '2025-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
   lastLoginAt: new Date().toISOString(),
   stats: { totalReports: 0, resolvedReports: 0, pendingReports: 0, points: 9999, rank: 'Administrateur' }
 };
@@ -163,9 +163,9 @@ export const MOCK_AGENTS: Agent[] = Array.from({ length: 20 }, (_, i) => {
     activeInterventions: Math.floor(Math.random() * 3),
     completedInterventions: Math.floor(Math.random() * 50 + 10),
     rating: Math.round((3.5 + Math.random() * 1.5) * 10) / 10,
-    createdAt: randomDate(new Date('2024-01-01'), new Date('2024-12-01')),
-    updatedAt: randomDate(new Date('2025-01-01'), new Date()),
-    lastLoginAt: randomDate(new Date('2025-01-01'), new Date()),
+    createdAt: randomDate(new Date('2025-01-01'), new Date('2025-12-01')),
+    updatedAt: randomDate(new Date('2026-01-01'), new Date()),
+    lastLoginAt: randomDate(new Date('2026-01-01'), new Date()),
   };
 });
 
@@ -192,9 +192,9 @@ export const MOCK_CITIZENS: User[] = Array.from({ length: 100 }, (_, i) => {
     isPhoneVerified: Math.random() > 0.1,
     zone,
     address: ADDRESSES[i % ADDRESSES.length],
-    createdAt: randomDate(new Date('2024-01-01'), new Date('2025-04-01')),
-    updatedAt: randomDate(new Date('2025-01-01'), new Date()),
-    lastLoginAt: randomDate(new Date('2025-03-01'), new Date()),
+    createdAt: randomDate(new Date('2025-01-01'), new Date('2026-04-01')),
+    updatedAt: randomDate(new Date('2026-01-01'), new Date()),
+    lastLoginAt: randomDate(new Date('2026-03-01'), new Date()),
     stats: {
       totalReports: reportCount,
       resolvedReports: resolved,
@@ -392,6 +392,18 @@ export const MOCK_NOTIFICATIONS: Notification[] = Array.from({ length: 200 }, (_
     SYSTEM: { title: '🔔 Mise à Jour Système', message: 'AMOGED-D4 a été mis à jour. Découvrez les nouvelles fonctionnalités.' },
     ALERT: { title: '⚠️ Alerte Zone', message: `Augmentation des signalements dans votre zone ${ZONES_DATA[citizen.zone || 'BONABERI'].name}. Vigilance requise.` },
     INFO: { title: 'ℹ️ Information', message: 'Calendrier de collecte mis à jour pour votre quartier. Consultez le nouveau planning.' },
+    REWARD_REQUESTED: {
+      title: '',
+      message: ''
+    },
+    REWARD_VALIDATED: {
+      title: '',
+      message: ''
+    },
+    REWARD_REJECTED: {
+      title: '',
+      message: ''
+    }
   };
 
   const msg = messages[type];
@@ -502,38 +514,38 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
 // ─── CURRENT USER (Demo Login) ─────────────────────────────────────────────────
 
 export const DEMO_USERS = {
-  admin: { ...MOCK_ADMIN, password: 'Admin@2025' },
-  supervisor: { ...MOCK_SUPERVISORS[0], password: 'Supervisor@2025' },
-  agent: { ...MOCK_AGENTS[0], password: 'Agent@2025' },
-  citizen: { ...MOCK_CITIZENS[0], password: 'Citizen@2025' },
+  admin: { ...MOCK_ADMIN, password: 'Admin@2026' },
+  supervisor: { ...MOCK_SUPERVISORS[0], password: 'Supervisor@2026' },
+  agent: { ...MOCK_AGENTS[0], password: 'Agent@2026' },
+  citizen: { ...MOCK_CITIZENS[0], password: 'Citizen@2026' },
 };
 
 // ─── CATEGORY LABELS ──────────────────────────────────────────────────────────
 
 export const CATEGORY_LABELS: Record<WasteCategory, { label: string; icon: string; color: string }> = {
-  HOUSEHOLD:      { label: 'Ordures Ménagères', icon: '🏠', color: '#059669' },
-  INDUSTRIAL:     { label: 'Déchets Industriels', icon: '🏭', color: '#6b7280' },
-  MEDICAL:        { label: 'Déchets Médicaux', icon: '🏥', color: '#ef4444' },
-  ELECTRONIC:     { label: 'Déchets Électroniques', icon: '💻', color: '#3b82f6' },
-  CONSTRUCTION:   { label: 'Déchets de Construction', icon: '🏗️', color: '#f59e0b' },
-  ORGANIC:        { label: 'Déchets Organiques', icon: '🌿', color: '#22c55e' },
-  ILLEGAL_DUMPING:{ label: 'Dépôt Sauvage', icon: '⚠️', color: '#f97316' },
+  HOUSEHOLD: { label: 'Ordures Ménagères', icon: '🏠', color: '#059669' },
+  INDUSTRIAL: { label: 'Déchets Industriels', icon: '🏭', color: '#6b7280' },
+  MEDICAL: { label: 'Déchets Médicaux', icon: '🏥', color: '#ef4444' },
+  ELECTRONIC: { label: 'Déchets Électroniques', icon: '💻', color: '#3b82f6' },
+  CONSTRUCTION: { label: 'Déchets de Construction', icon: '🏗️', color: '#f59e0b' },
+  ORGANIC: { label: 'Déchets Organiques', icon: '🌿', color: '#22c55e' },
+  ILLEGAL_DUMPING: { label: 'Dépôt Sauvage', icon: '⚠️', color: '#f97316' },
   DRAIN_BLOCKAGE: { label: 'Caniveau Bouché', icon: '🚰', color: '#8b5cf6' },
-  OTHER:          { label: 'Autre', icon: '❓', color: '#9ca3af' },
+  OTHER: { label: 'Autre', icon: '❓', color: '#9ca3af' },
 };
 
 export const URGENCY_LABELS: Record<UrgencyLevel, { label: string; color: string; bg: string }> = {
-  LOW:      { label: 'Faible', color: '#059669', bg: '#d1fae5' },
-  MEDIUM:   { label: 'Moyen', color: '#f59e0b', bg: '#fef3c7' },
-  HIGH:     { label: 'Élevé', color: '#f97316', bg: '#ffedd5' },
+  LOW: { label: 'Faible', color: '#059669', bg: '#d1fae5' },
+  MEDIUM: { label: 'Moyen', color: '#f59e0b', bg: '#fef3c7' },
+  HIGH: { label: 'Élevé', color: '#f97316', bg: '#ffedd5' },
   CRITICAL: { label: 'Critique', color: '#ef4444', bg: '#fee2e2' },
 };
 
 export const STATUS_LABELS: Record<ReportStatus, { label: string; color: string; bg: string }> = {
-  PENDING:     { label: 'En Attente', color: '#f59e0b', bg: '#fef3c7' },
-  ASSIGNED:    { label: 'Assigné', color: '#3b82f6', bg: '#dbeafe' },
+  PENDING: { label: 'En Attente', color: '#f59e0b', bg: '#fef3c7' },
+  ASSIGNED: { label: 'Assigné', color: '#3b82f6', bg: '#dbeafe' },
   IN_PROGRESS: { label: 'En Cours', color: '#8b5cf6', bg: '#ede9fe' },
-  RESOLVED:    { label: 'Résolu', color: '#059669', bg: '#d1fae5' },
-  REJECTED:    { label: 'Rejeté', color: '#ef4444', bg: '#fee2e2' },
-  CANCELLED:   { label: 'Annulé', color: '#6b7280', bg: '#f3f4f6' },
+  RESOLVED: { label: 'Résolu', color: '#059669', bg: '#d1fae5' },
+  REJECTED: { label: 'Rejeté', color: '#ef4444', bg: '#fee2e2' },
+  CANCELLED: { label: 'Annulé', color: '#6b7280', bg: '#f3f4f6' },
 };

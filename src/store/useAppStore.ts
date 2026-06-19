@@ -23,10 +23,12 @@ interface AppStore {
   collapseSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   markNotificationRead: (id: string) => void;
-  markAllRead: () => void;
+  markAllRead: (userId?: string) => void;
   addNotification: (notif: Omit<Notification, 'id' | 'createdAt'>) => void;
   setOnlineStatus: (online: boolean) => void;
   getUnreadCount: () => number;
+  getNotificationsForUser: (userId: string) => Notification[];
+  getUnreadCountForUser: (userId: string) => number;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -36,8 +38,8 @@ export const useAppStore = create<AppStore>()(
       language: 'fr',
       sidebarOpen: true,
       sidebarCollapsed: false,
-      notifications: MOCK_NOTIFICATIONS.slice(0, 20),
-      unreadCount: MOCK_NOTIFICATIONS.slice(0, 20).filter(n => !n.isRead).length,
+      notifications: MOCK_NOTIFICATIONS,
+      unreadCount: MOCK_NOTIFICATIONS.filter(n => !n.isRead).length,
       isOnline: true,
 
       setTheme: (theme) => {
@@ -68,11 +70,19 @@ export const useAppStore = create<AppStore>()(
         }));
       },
 
-      markAllRead: () => {
-        set(state => ({
-          notifications: state.notifications.map(n => ({ ...n, isRead: true, readAt: new Date().toISOString() })),
-          unreadCount: 0,
-        }));
+      markAllRead: (userId?: string) => {
+        set(state => {
+          const updatedNotifications = state.notifications.map(n => {
+            if (!userId || n.userId === userId) {
+              return { ...n, isRead: true, readAt: new Date().toISOString() };
+            }
+            return n;
+          });
+          return {
+            notifications: updatedNotifications,
+            unreadCount: updatedNotifications.filter(n => !n.isRead).length,
+          };
+        });
       },
 
       addNotification: (notif) => {
@@ -91,6 +101,14 @@ export const useAppStore = create<AppStore>()(
       setOnlineStatus: (online) => set({ isOnline: online }),
 
       getUnreadCount: () => get().notifications.filter(n => !n.isRead).length,
+      
+      getNotificationsForUser: (userId) => {
+        return get().notifications.filter(n => n.userId === userId);
+      },
+      
+      getUnreadCountForUser: (userId) => {
+        return get().notifications.filter(n => n.userId === userId && !n.isRead).length;
+      },
     }),
     {
       name: 'amoged-app',

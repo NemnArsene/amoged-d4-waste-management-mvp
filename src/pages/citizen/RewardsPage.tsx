@@ -11,6 +11,7 @@ import { cn } from '../../utils/cn';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useUserPoints } from '../../hooks/useUserPoints';
 
 export function RewardsPage() {
   const navigate = useNavigate();
@@ -22,9 +23,8 @@ export function RewardsPage() {
 
   if (!user) return null;
 
-  // Mocking points directly here if not present
-  const points = user.stats?.points || 250;
-  
+  const points = useUserPoints();
+
   const myRequests = requests.filter(r => r.citizenId === user.id);
   const reward = rewards.find(r => r.id === selectedReward);
 
@@ -51,6 +51,7 @@ export function RewardsPage() {
       title: 'Nouvelle demande de récompense',
       message: `${user.fullName} a demandé : ${reward.title}`,
       priority: 'NORMAL',
+      isRead: false
     });
 
     toast.success('Demande de récompense envoyée avec succès !');
@@ -132,9 +133,9 @@ export function RewardsPage() {
             {rewards.map(item => {
               const canAfford = points >= item.pointsCost;
               return (
-                <Card 
-                  key={item.id} 
-                  padding="sm" 
+                <Card
+                  key={item.id}
+                  padding="sm"
                   className={cn(
                     "flex flex-col cursor-pointer transition-all border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-900/50 relative overflow-hidden",
                     !canAfford && "opacity-70 grayscale-[30%]"
@@ -178,7 +179,7 @@ export function RewardsPage() {
               <h3 className="font-bold text-gray-900 dark:text-white text-lg">{reward.title}</h3>
               <p className="text-sm text-gray-500 mt-1">{reward.description}</p>
             </div>
-            
+
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Coût en points</span>
               <span className="text-lg font-bold text-purple-600 dark:text-purple-400">-{reward.pointsCost} pts</span>

@@ -25,6 +25,7 @@ import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
 import { AuditPage } from './pages/admin/AuditPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminRewardsPage } from './pages/admin/AdminRewardsPage';
+import { AgentMissionsPage } from './pages/admin/AgentMissionsPage';
 
 // Citizen Layout & Pages
 import { CitizenLayout } from './components/layout/CitizenLayout';
@@ -73,6 +74,14 @@ function CitizenGuard({ children }: { children: React.ReactNode }) {
       {children}
     </ProtectedRoute>
   );
+}
+
+function AdminIndexRedirect() {
+  const { user } = useAuthStore();
+  if (user?.role === 'AGENT') {
+    return <Navigate to="/admin/missions" replace />;
+  }
+  return <Navigate to="/admin/dashboard" replace />;
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
@@ -146,9 +155,10 @@ export default function App() {
             </AdminGuard>
           }
         >
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route index element={<AdminIndexRedirect />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="missions" element={<AgentMissionsPage />} />
           <Route path="map" element={<MapPage />} />
           <Route path="interventions" element={<InterventionsPage />} />
           <Route path="agents" element={<AgentsPage />} />

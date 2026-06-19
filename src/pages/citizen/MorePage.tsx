@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import toast from 'react-hot-toast';
+import { useUserPoints } from '../../hooks/useUserPoints';
 
 interface MenuItemProps {
   icon: React.ReactNode;
@@ -58,6 +59,7 @@ export function MorePage() {
   const { user, logout } = useAuthStore();
   const { unreadCount, theme, setTheme } = useAppStore();
   const navigate = useNavigate();
+  const dynamicPoints = useUserPoints();
 
   const handleLogout = () => {
     logout();
@@ -85,9 +87,9 @@ export function MorePage() {
                   <Award className="w-3 h-3" /> {user.stats.rank}
                 </span>
               )}
-              {user.stats?.points !== undefined && (
+              {dynamicPoints !== undefined && (
                 <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Star className="w-3 h-3" /> {user.stats.points} pts
+                  <Star className="w-3 h-3" /> {dynamicPoints} pts
                 </span>
               )}
             </div>
@@ -206,7 +208,7 @@ export function MorePage() {
         </div>
         <p className="text-xs font-bold text-gray-900 dark:text-white">AMOGED-D4</p>
         <p className="text-xs text-gray-500">Version 1.0.0 • Mairie de Douala 4ème</p>
-        <p className="text-xs text-gray-400">© 2025 — Plateforme GovTech Smart City</p>
+        <p className="text-xs text-gray-400">© 2026 — Plateforme GovTech Smart City</p>
       </Card>
 
       {/* Logout */}

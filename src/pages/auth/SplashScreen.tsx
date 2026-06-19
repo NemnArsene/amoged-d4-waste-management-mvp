@@ -63,7 +63,7 @@ export function SplashScreen() {
 
       {/* Bottom branding */}
       <div className="absolute bottom-8 left-0 right-0 text-center">
-        <p className="text-white/40 text-xs">Mairie de Douala 4ème © 2025</p>
+        <p className="text-white/40 text-xs">Mairie de Douala 4ème © 2026</p>
         <p className="text-white/30 text-xs mt-1">Powered by GovTech Smart City Platform</p>
       </div>
 

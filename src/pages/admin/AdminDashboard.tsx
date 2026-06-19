@@ -9,10 +9,11 @@ import { Badge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import {
-  MOCK_DASHBOARD_STATS, MOCK_REPORTS, MOCK_AGENTS,
+  MOCK_DASHBOARD_STATS, MOCK_AGENTS,
   CATEGORY_LABELS, ZONES_DATA, STATUS_LABELS
 } from '../../data/mockData';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useReportStore } from '../../store/useReportStore';
 import {
   AlertTriangle, CheckCircle, Clock, TrendingUp,
   Users, Truck, Star, ArrowRight, RefreshCw
@@ -23,19 +24,29 @@ import type { ReportStatus } from '../../types';
 export function AdminDashboard() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const { reports } = useReportStore();
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
-  const stats = MOCK_DASHBOARD_STATS;
+  
+  // Real stats from store
+  const totalReports = reports.length;
+  const resolvedReports = reports.filter(r => r.status === 'RESOLVED').length;
+  const pendingReports = reports.filter(r => r.status === 'PENDING').length;
+  const inProgressReports = reports.filter(r => r.status === 'IN_PROGRESS' || r.status === 'ASSIGNED').length;
+  const rejectedReports = reports.filter(r => r.status === 'REJECTED').length;
 
-  const recentReports = MOCK_REPORTS.slice(0, 8);
+  const stats = MOCK_DASHBOARD_STATS; // Keep for trend charts
+
+  // Sort by newest
+  const recentReports = [...reports].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 8);
 
   // Chart data
   const trendData = stats.reportsTrend.slice(period === '7d' ? -7 : period === '30d' ? -30 : -90);
 
   const pieData = [
-    { name: 'Résolu', value: stats.resolvedReports, color: '#059669' },
-    { name: 'En cours', value: stats.inProgressReports, color: '#8b5cf6' },
-    { name: 'En attente', value: stats.pendingReports, color: '#f59e0b' },
-    { name: 'Rejeté', value: stats.rejectedReports, color: '#ef4444' },
+    { name: 'Résolu', value: resolvedReports, color: '#059669' },
+    { name: 'En cours', value: inProgressReports, color: '#8b5cf6' },
+    { name: 'En attente', value: pendingReports, color: '#f59e0b' },
+    { name: 'Rejeté', value: rejectedReports, color: '#ef4444' },
   ];
 
   const categoryData = stats.reportsByCategory.slice(0, 6).map(item => ({
@@ -91,7 +102,7 @@ export function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <StatCard
           title="Total Signalements"
-          value={stats.totalReports.toLocaleString()}
+          value={totalReports.toLocaleString()}
           subtitle="Depuis le début"
           icon={<AlertTriangle className="w-5 h-5" />}
           color="orange"
@@ -99,15 +110,15 @@ export function AdminDashboard() {
         />
         <StatCard
           title="Résolus"
-          value={stats.resolvedReports.toLocaleString()}
-          subtitle={`${stats.resolutionRate}% du total`}
+          value={resolvedReports.toLocaleString()}
+          subtitle={`${totalReports > 0 ? Math.round((resolvedReports / totalReports) * 100) : 0}% du total`}
           icon={<CheckCircle className="w-5 h-5" />}
           color="green"
           trend={{ value: 8, label: 'ce mois' }}
         />
         <StatCard
           title="En Attente"
-          value={stats.pendingReports.toLocaleString()}
+          value={pendingReports.toLocaleString()}
           subtitle="À traiter"
           icon={<Clock className="w-5 h-5" />}
           color="blue"

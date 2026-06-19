@@ -1,4 +1,5 @@
 import { useAppStore } from '../../store/useAppStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -15,7 +16,13 @@ const PRIORITY_CONFIG = {
 };
 
 export function AdminNotificationsPage() {
-  const { notifications, markNotificationRead, markAllRead, unreadCount } = useAppStore();
+  const { user } = useAuthStore();
+  const { markNotificationRead, markAllRead, getNotificationsForUser, getUnreadCountForUser } = useAppStore();
+
+  if (!user) return null;
+
+  const myNotifs = getNotificationsForUser(user.id);
+  const userUnreadCount = getUnreadCountForUser(user.id);
 
   return (
     <div className="space-y-4">
@@ -24,14 +31,14 @@ export function AdminNotificationsPage() {
           <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Bell className="w-5 h-5 text-emerald-500" />
             Centre de Notifications
-            {unreadCount > 0 && (
-              <span className="text-sm bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{unreadCount}</span>
+            {userUnreadCount > 0 && (
+              <span className="text-sm bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{userUnreadCount}</span>
             )}
           </h2>
           <p className="text-sm text-gray-500 mt-0.5">Toutes les alertes et mises à jour système</p>
         </div>
-        {unreadCount > 0 && (
-          <Button size="sm" variant="outline" onClick={markAllRead} leftIcon={<CheckCheck className="w-4 h-4" />}>
+        {userUnreadCount > 0 && (
+          <Button size="sm" variant="outline" onClick={() => markAllRead(user.id)} leftIcon={<CheckCheck className="w-4 h-4" />}>
             Tout marquer lu
           </Button>
         )}
@@ -40,15 +47,15 @@ export function AdminNotificationsPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <Card padding="sm" className="text-center">
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{notifications.length}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{myNotifs.length}</p>
           <p className="text-xs text-gray-500">Total</p>
         </Card>
         <Card padding="sm" className="text-center">
-          <p className="text-2xl font-bold text-red-500">{unreadCount}</p>
+          <p className="text-2xl font-bold text-red-500">{userUnreadCount}</p>
           <p className="text-xs text-gray-500">Non lues</p>
         </Card>
         <Card padding="sm" className="text-center">
-          <p className="text-2xl font-bold text-emerald-500">{notifications.filter(n => n.isRead).length}</p>
+          <p className="text-2xl font-bold text-emerald-500">{myNotifs.filter(n => n.isRead).length}</p>
           <p className="text-xs text-gray-500">Lues</p>
         </Card>
       </div>
@@ -56,7 +63,7 @@ export function AdminNotificationsPage() {
       {/* Notifications list */}
       <Card padding="none" className="overflow-hidden">
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
-          {notifications.map(notif => (
+          {myNotifs.map(notif => (
             <div
               key={notif.id}
               onClick={() => markNotificationRead(notif.id)}

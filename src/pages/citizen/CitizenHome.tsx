@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
-import { MOCK_REPORTS, MOCK_NOTIFICATIONS, CATEGORY_LABELS, STATUS_LABELS, ZONES_DATA } from '../../data/mockData';
+import { CATEGORY_LABELS, STATUS_LABELS, ZONES_DATA } from '../../data/mockData';
+import { useReportStore } from '../../store/useReportStore';
+import { useAppStore } from '../../store/useAppStore';
 import { Card, StatCard } from '../../components/ui/Card';
 import { Badge, StatusBadge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -9,17 +11,28 @@ import { Plus, ArrowRight, Bell, TrendingUp, CheckCircle, Clock, AlertTriangle }
 import { cn } from '../../utils/cn';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useUserPoints } from '../../hooks/useUserPoints';
 
 export function CitizenHome() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
   if (!user) return null;
+  const { reports } = useReportStore();
+  const { getNotificationsForUser } = useAppStore();
 
-  const myReports = MOCK_REPORTS.filter(r => r.citizenId === user.id || r.citizenId === 'citizen-001').slice(0, 10);
-  const myNotifs = MOCK_NOTIFICATIONS.filter(n => !n.isRead).slice(0, 3);
-  const stats = user.stats || { totalReports: myReports.length, resolvedReports: Math.floor(myReports.length * 0.6), pendingReports: Math.ceil(myReports.length * 0.4), points: 250 };
-
+  const myReports = reports.filter(r => r.citizenId === user.id || r.citizenId === 'citizen-001');
+  const recentReports = myReports.slice(0, 10);
+  
+  const myNotifs = getNotificationsForUser(user.id).filter(n => !n.isRead).slice(0, 3);
+  const dynamicPoints = useUserPoints();
+  
+  const stats = { 
+    totalReports: myReports.length, 
+    resolvedReports: myReports.filter(r => r.status === 'RESOLVED').length, 
+    pendingReports: myReports.filter(r => ['PENDING', 'ASSIGNED', 'IN_PROGRESS'].includes(r.status)).length, 
+    points: dynamicPoints 
+  };
   const timeOfDay = new Date().getHours();
   const greeting = timeOfDay < 12 ? 'Bonjour' : timeOfDay < 18 ? 'Bon après-midi' : 'Bonsoir';
 
@@ -167,7 +180,7 @@ export function CitizenHome() {
           </Card>
         ) : (
           <div className="space-y-2.5">
-            {myReports.slice(0, 4).map(report => (
+            {recentReports.slice(0, 4).map(report => (
               <div
                 key={report.id}
                 onClick={() => navigate('/citizen/my-reports')}

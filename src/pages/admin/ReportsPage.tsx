@@ -7,8 +7,10 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Modal } from '../../components/ui/Modal';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useAppStore } from '../../store/useAppStore';
+import { useReportStore } from '../../store/useReportStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import {
-  MOCK_REPORTS, MOCK_AGENTS, CATEGORY_LABELS, ZONES_DATA, STATUS_LABELS
+  MOCK_AGENTS, CATEGORY_LABELS, ZONES_DATA, STATUS_LABELS
 } from '../../data/mockData';
 import type { Report, ReportStatus, WasteCategory, CollectionZone } from '../../types';
 import {
@@ -51,7 +53,8 @@ export function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [assignModal, setAssignModal] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState('');
-  const [reports, setReports] = useState(MOCK_REPORTS);
+  const { user } = useAuthStore();
+  const { reports, assignAgent, updateReportStatus } = useReportStore();
 
   const filtered = useMemo(() => {
     return reports.filter(r => {
@@ -69,36 +72,49 @@ export function ReportsPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
 
   const handleAssign = () => {
-    if (!selectedReport || !selectedAgentId) return;
+    if (!selectedReport || !selectedAgentId || !user) return;
     const agent = MOCK_AGENTS.find(a => a.id === selectedAgentId);
-    setReports(prev => prev.map(r =>
-      r.id === selectedReport.id
-        ? { ...r, status: 'ASSIGNED' as ReportStatus, assignedAgentId: agent?.id, assignedAgentName: agent?.fullName }
-        : r
-    ));
+    if (!agent) return;
+
+    assignAgent(selectedReport.id, agent.id, agent.fullName, user.fullName);
+    
+    // Notify agent
+    addNotification({
+      userId: agent.id,
+      type: 'INTERVENTION_ASSIGNED',
+      title: 'Nouvelle Intervention Assignée',
+      message: `Le signalement ${selectedReport.referenceNumber} vous a été assigné par ${user.fullName}.`,
+      priority: 'HIGH',
+      isRead: false
+    });
+
     setAssignModal(false);
     setSelectedReport(null);
-    toast.success(`Signalement assigné à ${agent?.fullName}`);
+    toast.success(`Signalement assigné à ${agent.fullName}`);
   };
 
   const handleStatusChange = (reportId: string, status: ReportStatus) => {
-    setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
+    if (!user) return;
+    const report = reports.find(r => r.id === reportId);
+    if (!report) return;
 
-    if (status === 'RESOLVED' && selectedReport) {
+    updateReportStatus(reportId, status, user.fullName, user.role as any);
+
+    if (status === 'RESOLVED') {
       addNotification({
-        userId: selectedReport.citizenId,
+        userId: report.citizenId,
         type: 'REPORT_RESOLVED',
         title: 'Signalement Traité ! ✅',
-        message: `Votre signalement "${selectedReport.title}" a été résolu. Merci de votre contribution !`,
+        message: `Votre signalement "${report.title}" a été résolu. Merci de votre contribution !`,
         priority: 'NORMAL',
         isRead: false
       });
-    } else if (status === 'REJECTED' && selectedReport) {
+    } else if (status === 'REJECTED') {
       addNotification({
-        userId: selectedReport.citizenId,
+        userId: report.citizenId,
         type: 'REPORT_REJECTED',
         title: 'Signalement Rejeté',
-        message: `Votre signalement "${selectedReport.title}" a été rejeté.`,
+        message: `Votre signalement "${report.title}" a été rejeté.`,
         priority: 'NORMAL',
         isRead: false
       });

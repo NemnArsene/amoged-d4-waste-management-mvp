@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MOCK_SCHEDULES, ZONES_DATA } from '../../data/mockData';
+import { ZONES_DATA } from '../../data/mockData';
+import { useScheduleStore } from '../../store/useScheduleStore';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -18,16 +19,17 @@ const FREQ_LABELS = {
 
 export function CalendarPage() {
   const { user } = useAuthStore();
-  const [selectedSchedule, setSelectedSchedule] = useState(MOCK_SCHEDULES[0]);
+  const { schedules } = useScheduleStore();
+  const [selectedSchedule, setSelectedSchedule] = useState(schedules[0]);
   const today = new Date();
 
   // My zone schedule
   const myZoneSchedule = user?.zone
-    ? MOCK_SCHEDULES.find(s => s.zone === user.zone)
-    : MOCK_SCHEDULES[0];
+    ? schedules.find(s => s.zone === user.zone)
+    : schedules[0];
 
   // Generate upcoming collections (next 14 days)
-  const upcomingCollections = MOCK_SCHEDULES.flatMap(schedule =>
+  const upcomingCollections = schedules.flatMap(schedule =>
     Array.from({ length: 14 }, (_, i) => addDays(today, i)).filter(date =>
       schedule.dayOfWeek.includes(date.getDay())
     ).map(date => ({ schedule, date }))
@@ -38,7 +40,7 @@ export function CalendarPage() {
   const calendarDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const getCollectionsForDay = (date: Date) => {
-    return MOCK_SCHEDULES.filter(s => s.dayOfWeek.includes(date.getDay()));
+    return schedules.filter(s => s.dayOfWeek.includes(date.getDay()));
   };
 
   return (
@@ -188,7 +190,7 @@ export function CalendarPage() {
       <div>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">📋 Planning Complet</h3>
         <div className="space-y-2">
-          {MOCK_SCHEDULES.map(schedule => (
+          {schedules.map(schedule => (
             <Card
               key={schedule.id}
               padding="sm"

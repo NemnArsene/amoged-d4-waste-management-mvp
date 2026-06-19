@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthStore>()(
 
         // Check citizens
         const citizen = MOCK_CITIZENS.find(c => c.email === email);
-        if (citizen && password === 'Citizen@2025') {
+        if (citizen && password === 'Citizen@2026') {
           const token = generateToken(citizen.id, 'CITIZEN');
           set({ user: citizen, token, isAuthenticated: true, isLoading: false, appView: 'citizen' });
           return { success: true };

@@ -15,25 +15,28 @@ const NOTIF_ICONS: Record<string, string> = {
 
 export function NotificationsPage() {
   const { user } = useAuthStore();
-  const { notifications, markNotificationRead, markAllRead, unreadCount } = useAppStore();
+  const { markNotificationRead, markAllRead, getNotificationsForUser, getUnreadCountForUser } = useAppStore();
 
-  const myNotifs = notifications.slice(0, 30);
-  const hasUnread = unreadCount > 0;
+  if (!user) return null;
+
+  const myNotifs = getNotificationsForUser(user.id).slice(0, 30);
+  const userUnreadCount = getUnreadCountForUser(user.id);
+  const hasUnread = userUnreadCount > 0;
 
   return (
     <div className="px-4 pt-4 pb-6 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="text-base font-bold text-gray-900 dark:text-white">Notifications</h2>
-          {unreadCount > 0 && (
-            <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{unreadCount}</span>
+          {userUnreadCount > 0 && (
+            <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">{userUnreadCount}</span>
           )}
         </div>
         {hasUnread && (
           <Button
             size="sm"
             variant="ghost"
-            onClick={markAllRead}
+            onClick={() => markAllRead(user.id)}
             leftIcon={<CheckCheck className="w-4 h-4" />}
           >
             Tout marquer lu

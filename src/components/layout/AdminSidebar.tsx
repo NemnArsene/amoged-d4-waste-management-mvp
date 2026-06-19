@@ -14,20 +14,22 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   badge?: number;
+  roles?: string[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { path: '/admin/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-  { path: '/admin/reports', label: 'Signalements', icon: <AlertTriangle className="w-5 h-5" />, badge: 98 },
-  { path: '/admin/map', label: 'Carte Interactive', icon: <Map className="w-5 h-5" /> },
-  { path: '/admin/interventions', label: 'Interventions', icon: <ClipboardList className="w-5 h-5" /> },
-  { path: '/admin/agents', label: 'Agents', icon: <Users className="w-5 h-5" /> },
-  { path: '/admin/rewards', label: 'Programme de fidélité', icon: <Gift className="w-5 h-5" /> },
-  { path: '/admin/users', label: 'Utilisateurs', icon: <UserCog className="w-5 h-5" /> },
-  { path: '/admin/reporting', label: 'Reporting', icon: <BarChart3 className="w-5 h-5" /> },
-  { path: '/admin/notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
-  { path: '/admin/audit', label: "Journal d'Audit", icon: <FileText className="w-5 h-5" /> },
-  { path: '/admin/settings', label: 'Paramètres', icon: <Settings className="w-5 h-5" /> },
+  { path: '/admin/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/reports', label: 'Signalements', icon: <AlertTriangle className="w-5 h-5" />, badge: 98, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/missions', label: 'Mes Missions', icon: <ClipboardList className="w-5 h-5" />, roles: ['AGENT'] },
+  { path: '/admin/map', label: 'Carte Interactive', icon: <Map className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/interventions', label: 'Interventions', icon: <ClipboardList className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/agents', label: 'Agents', icon: <Users className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/rewards', label: 'Programme de fidélité', icon: <Gift className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/users', label: 'Utilisateurs', icon: <UserCog className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/reporting', label: 'Reporting', icon: <BarChart3 className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR'] },
+  { path: '/admin/notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR', 'AGENT'] },
+  { path: '/admin/audit', label: "Journal d'Audit", icon: <FileText className="w-5 h-5" />, roles: ['ADMIN'] },
+  { path: '/admin/settings', label: 'Paramètres', icon: <Settings className="w-5 h-5" />, roles: ['ADMIN', 'SUPERVISOR', 'AGENT'] },
 ];
 
 export function AdminSidebar() {
@@ -65,7 +67,7 @@ export function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-        {NAV_ITEMS.map(item => (
+        {NAV_ITEMS.filter(item => !item.roles || (user?.role && item.roles.includes(user.role))).map(item => (
           <NavLink
             key={item.path}
             to={item.path}

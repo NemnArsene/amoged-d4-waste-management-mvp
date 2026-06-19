@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { MOCK_REPORTS, CATEGORY_LABELS, STATUS_LABELS } from '../../data/mockData';
+import { CATEGORY_LABELS, STATUS_LABELS } from '../../data/mockData';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useReportStore } from '../../store/useReportStore';
 import { Card } from '../../components/ui/Card';
 import { StatusBadge, UrgencyBadge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
@@ -18,7 +19,9 @@ export function MyReportsPage() {
   const [activeTab, setActiveTab] = useState('Tous');
   const [selected, setSelected] = useState<Report | null>(null);
 
-  const myReports = MOCK_REPORTS.filter(r =>
+  const { reports } = useReportStore();
+
+  const myReports = reports.filter(r =>
     r.citizenId === user?.id || r.citizenId === 'citizen-001'
   );
 
