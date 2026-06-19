@@ -25,6 +25,9 @@ db.interventions.drop();
 db.notifications.drop();
 db.schedules.drop();
 db.auditLogs.drop();
+db.rewards.drop();
+db.rewardRequests.drop();
+db.zones.drop();
 
 // ─── DONNÉES DE RÉFÉRENCE ────────────────────────────────────────────────────────
 
@@ -38,6 +41,15 @@ const ZONES_DATA = {
   BONASSAMA: { name: 'Bonassama', center: [4.0480, 9.7010], color: '#f97316' },
   MAMBANDA: { name: 'Mambanda', center: [4.0720, 9.6760], color: '#ef4444' },
 };
+
+const zonesList = Object.entries(ZONES_DATA).map(([id, data]) => ({
+  _id: id,
+  name: data.name,
+  center: data.center,
+  color: data.color
+}));
+db.zones.insertMany(zonesList);
+print(`✅ ${zonesList.length} Zones (Quartiers) insérées.`);
 
 const WASTE_PHOTOS = [
   'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
@@ -271,40 +283,137 @@ const interventions = Array.from({ length: 300 }, (_, i) => {
   const zone = AGENT_ZONES[i % AGENT_ZONES.length];
   const report = reports[i % reports.length];
   const supervisor = supervisors[i % supervisors.length];
-  const agentIds = [agents[i % agents.length]._id];
+  const agent1 = agents[i % agents.length];
+  const agent2 = agents[(i + 1) % agents.length];
   const status = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'][i % 4];
+  const scheduledAt = randomDate(new Date('2025-01-01'), new Date());
+  const gps = randomGPS(zone);
   
   return {
     _id: `int-${String(i + 1).padStart(3, '0')}`,
     referenceNumber: generateRef('INT', i + 1),
     reportIds: [report._id],
     title: `Intervention ${ZONES_DATA[zone].name} #${i + 1}`,
-    description: `Collecte des déchets signalés.`,
+    description: `Collecte et évacuation des déchets signalés dans la zone ${ZONES_DATA[zone].name}. Nettoyage complet du secteur prévu.`,
     status,
     priority: URGENCIES[i % 4],
-    assignedAgentIds: agentIds,
+    assignedAgentIds: [agent1._id, agent2._id],
     supervisorId: supervisor._id,
+    supervisorName: supervisor.fullName,
     zone,
-    scheduledAt: randomDate(new Date('2025-01-01'), new Date()),
+    location: { lat: gps.lat, lng: gps.lng, address: ADDRESSES[i % ADDRESSES.length], zone },
+    scheduledAt,
+    startedAt: ['IN_PROGRESS', 'COMPLETED'].includes(status) ? new Date(scheduledAt.getTime() + 1800000) : null,
+    completedAt: status === 'COMPLETED' ? new Date(scheduledAt.getTime() + 7200000) : null,
+    estimatedDuration: 60 + Math.floor(Math.random() * 120),
+    actualDuration: status === 'COMPLETED' ? 45 + Math.floor(Math.random() * 90) : null,
+    equipment: randomFrom([['Camion benne', 'Pelles', 'Sacs industriels'], ['Balayeuses', 'Brouettes', 'Gants'], ['Pompe hydraulique', 'Tuyaux']]),
+    notes: Math.random() > 0.5 ? 'Accès difficile, prévoir équipement adapté.' : 'Intervention standard, aucun problème.',
+    photos: status === 'COMPLETED' ? [randomFrom(WASTE_PHOTOS), randomFrom(WASTE_PHOTOS)] : [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 });
 
 db.interventions.insertMany(interventions);
-print(`✅ ${interventions.length} Interventions insérées.`);
+print(`✅ ${interventions.length} Interventions détaillées insérées.`);
 
 // ─── PLANNINGS DE COLLECTE ───────────────────────────────────────────────────
 
-print("📅 Génération des Plannings...");
+print("📅 Génération des Plannings de Collecte...");
 
 const schedules = [
-  { _id: 'sch-001', zone: 'BONABERI', dayOfWeek: [1, 3, 5], startTime: '07:00', endTime: '12:00', frequency: 'TWICE_WEEKLY', isActive: true },
-  { _id: 'sch-002', zone: 'BOJONGO', dayOfWeek: [1, 4], startTime: '06:30', endTime: '11:30', frequency: 'TWICE_WEEKLY', isActive: true },
-  { _id: 'sch-003', zone: 'MABANDA', dayOfWeek: [2, 5], startTime: '07:30', endTime: '12:30', frequency: 'TWICE_WEEKLY', isActive: true },
-  { _id: 'sch-004', zone: 'SODIKO', dayOfWeek: [2, 6], startTime: '07:00', endTime: '12:00', frequency: 'TWICE_WEEKLY', isActive: true }
+  { _id: 'sch-001', zone: 'BONABERI', zoneName: 'Bonabéri', dayOfWeek: [1, 3, 5], startTime: '07:00', endTime: '12:00', frequency: 'TWICE_WEEKLY', assignedTeam: [agents[0]._id, agents[1]._id], coverageArea: 'Bonabéri Centre, Carrefour Bonabéri', nextCollection: new Date(Date.now() + 86400000), isActive: true },
+  { _id: 'sch-002', zone: 'BOJONGO', zoneName: 'Bojongo', dayOfWeek: [1, 4], startTime: '06:30', endTime: '11:30', frequency: 'TWICE_WEEKLY', assignedTeam: [agents[2]._id, agents[3]._id], coverageArea: 'Bojongo Bas, Lycée de Bojongo', nextCollection: new Date(Date.now() + 172800000), isActive: true },
+  { _id: 'sch-003', zone: 'MABANDA', zoneName: 'Mabanda', dayOfWeek: [2, 5], startTime: '07:30', endTime: '12:30', frequency: 'TWICE_WEEKLY', assignedTeam: [agents[4]._id, agents[5]._id], coverageArea: 'Marché de Mabanda, Cité SIC', nextCollection: new Date(Date.now() + 259200000), isActive: true },
+  { _id: 'sch-004', zone: 'SODIKO', zoneName: 'Sodiko', dayOfWeek: [2, 6], startTime: '07:00', endTime: '12:00', frequency: 'TWICE_WEEKLY', assignedTeam: [agents[6]._id, agents[7]._id], coverageArea: 'Sodiko Centre, Zone Commerciale', nextCollection: new Date(Date.now() + 345600000), isActive: true }
 ];
 db.schedules.insertMany(schedules);
-print(`✅ ${schedules.length} Plannings insérés.`);
+print(`✅ ${schedules.length} Plannings de Collecte détaillés insérés.`);
+
+// ─── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+
+print("🔔 Génération des Notifications...");
+
+const NOTIF_TYPES = ['REPORT_CREATED', 'REPORT_ASSIGNED', 'REPORT_IN_PROGRESS', 'REPORT_RESOLVED', 'SYSTEM', 'ALERT', 'INFO'];
+const notifications = Array.from({ length: 200 }, (_, i) => {
+  const citizen = citizens[i % citizens.length];
+  const type = NOTIF_TYPES[i % NOTIF_TYPES.length];
+  const report = reports[i % reports.length];
+  return {
+    _id: `notif-${String(i + 1).padStart(4, '0')}`,
+    userId: citizen._id,
+    type,
+    priority: i % 10 === 0 ? 'URGENT' : i % 5 === 0 ? 'HIGH' : 'NORMAL',
+    title: `Notification ${type}`,
+    message: `Mise à jour concernant votre dossier ou alerte système.`,
+    isRead: Math.random() > 0.4,
+    data: { reportId: report._id, referenceNumber: report.referenceNumber },
+    actionUrl: `/citizen/reports/${report._id}`,
+    createdAt: randomDate(new Date('2025-01-01'), new Date()),
+  };
+});
+db.notifications.insertMany(notifications);
+print(`✅ ${notifications.length} Notifications insérées.`);
+
+// ─── LOGS D'AUDIT ─────────────────────────────────────────────────────────────
+
+print("📝 Génération des Logs d'Audit...");
+
+const ACTIONS = ['LOGIN', 'LOGOUT', 'CREATE_REPORT', 'UPDATE_REPORT', 'ASSIGN_AGENT', 'CREATE_INTERVENTION', 'CREATE_USER'];
+const auditLogs = Array.from({ length: 100 }, (_, i) => {
+  const user = allUsers[i % allUsers.length];
+  const action = ACTIONS[i % ACTIONS.length];
+  return {
+    _id: `audit-${String(i + 1).padStart(4, '0')}`,
+    userId: user._id,
+    userName: user.fullName,
+    userRole: user.role,
+    action,
+    resource: action.includes('REPORT') ? 'Report' : 'System',
+    resourceId: `resource-${i + 1}`,
+    details: `Action: ${action} effectuée avec succès`,
+    ipAddress: `192.168.1.${(i % 254) + 1}`,
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    success: Math.random() > 0.05,
+    timestamp: randomDate(new Date('2025-01-01'), new Date()),
+  };
+});
+db.auditLogs.insertMany(auditLogs);
+print(`✅ ${auditLogs.length} Logs d'Audit insérés.`);
+
+// ─── PROGRAMME DE FIDÉLITÉ (RÉCOMPENSES) ───────────────────────────────────────
+
+print("🎁 Génération du Programme de Fidélité (Catalogue & Demandes)...");
+
+const rewards = [
+  { _id: 'rew-001', name: 'Forfait Internet 2Go (Orange)', description: 'Forfait internet mobile valide 7 jours.', pointsCost: 500, category: 'INTERNET', imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200&q=80', isAvailable: true, stock: 100, createdAt: new Date() },
+  { _id: 'rew-002', name: 'Forfait Internet 2Go (MTN)', description: 'Forfait internet mobile valide 7 jours.', pointsCost: 500, category: 'INTERNET', imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200&q=80', isAvailable: true, stock: 100, createdAt: new Date() },
+  { _id: 'rew-003', name: 'Bon d\'achat Supermarché 5000 FCFA', description: 'Valable dans les supermarchés partenaires de Douala 4.', pointsCost: 1500, category: 'VOUCHER', imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=80', isAvailable: true, stock: 50, createdAt: new Date() },
+  { _id: 'rew-004', name: 'T-shirt AMOGED-D4', description: 'T-shirt éco-responsable de la Mairie.', pointsCost: 1000, category: 'GOODIES', imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&q=80', isAvailable: true, stock: 200, createdAt: new Date() },
+  { _id: 'rew-005', name: 'Kit Scolaire', description: 'Cahiers, stylos et sac à dos pour la rentrée.', pointsCost: 2000, category: 'EDUCATION', imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=200&q=80', isAvailable: true, stock: 30, createdAt: new Date() }
+];
+db.rewards.insertMany(rewards);
+print(`✅ ${rewards.length} Récompenses au catalogue insérées.`);
+
+const rewardRequests = Array.from({ length: 50 }, (_, i) => {
+  const citizen = citizens[i % citizens.length];
+  const reward = rewards[i % rewards.length];
+  const statuses = ['PENDING', 'VALIDATED', 'REJECTED', 'DELIVERED'];
+  return {
+    _id: `req-${String(i + 1).padStart(4, '0')}`,
+    citizenId: citizen._id,
+    citizenName: citizen.fullName,
+    rewardId: reward._id,
+    rewardName: reward.name,
+    pointsUsed: reward.pointsCost,
+    status: statuses[i % statuses.length],
+    requestDate: randomDate(new Date('2025-01-01'), new Date()),
+    processedDate: i % 4 !== 0 ? new Date() : null,
+    notes: i % 4 === 2 ? 'Points insuffisants ou suspicion de fraude.' : 'Demande valide, traitement en cours.'
+  };
+});
+db.rewardRequests.insertMany(rewardRequests);
+print(`✅ ${rewardRequests.length} Demandes de Récompenses insérées.`);
 
 print("🎉 TERMINE ! La base de données 'amoged' est prête.");

@@ -82,5 +82,25 @@ L'application sera alors accessible sur `http://localhost:8088`.
 
 > **Note :** Pour arrêter et supprimer le conteneur : `docker rm -f amoged-d4`
 
+## 🗄️ Base de Données (MongoDB)
+Pour peupler une base de données locale MongoDB avec les données de test (utilisateurs, signalements, interventions), un script automatisé est disponible dans le dossier `scripts/`.
+
+### Créer et Peupler la Base via Docker
+
+1. Lancer un conteneur MongoDB (`amoged-mongo`) :
+```bash
+docker run -d -p 27017:27017 --name amoged-mongo mongo:latest
+```
+
+2. Copier le script d'initialisation dans le conteneur :
+```bash
+docker cp scripts/mongo_seed.js amoged-mongo:/mongo_seed.js
+```
+
+3. Lancer l'insertion des données dans la base `amoged` :
+```bash
+docker exec -it amoged-mongo mongosh "mongodb://localhost:27017/amoged" /mongo_seed.js
+```
+
 ## 📄 Licence
 Mairie de Douala 4ème © 2026 - Tous droits réservés.
